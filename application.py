@@ -165,7 +165,23 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    return apology("TODO")
+    if request.method == "POST":
+        symbol = request.form.get("symbol")
+        numofshares = request.form.get("shares")
+        sold = lookup(symbol)
+        price = sold["price"]
+        cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
+        cashvalue = float(cash[0]["cash"])
+        #calculates cost of shares and subtracts from user's balance
+        cost = int(numofshares) * price
+        bal = float(cashvalue) + cost
+        #checks if user balance befor purchasing
+        if numofshares < 0:
+            return apology("You don't have enough stock to do this.")
+        else:
+            return render_template("sold.html", stock = stock, cash = cashvalue, bal = bal, numofshares = numofshares, cost = cost)
+    stock = db.execute("SELECT symbol FROM purchase WHERE user_id = ? GROUP BY symbol",session["user_id"])
+    return render_template("sell.html", stock = stock)
 
 
 def errorhandler(e):

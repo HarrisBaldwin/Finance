@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Bought
+{% endblock %}
+
+{% block main %}
+    <h1>You have sold {{numofshares}} of {{stock}} for ${{cost}}</h1>
+            <h1>Your current balance is: {{cash}}</h1>
+            <h1>you will get {{cost}} from this purchase</h1>
+            <h1>Your new balance will be: {{bal}}</h1>
+{% endblock %}
