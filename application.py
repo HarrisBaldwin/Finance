@@ -170,22 +170,22 @@ def sell():
         currentTime = datetime.datetime.now()
         symbol = request.form.get("symbol")
         numOfShares = request.form.get("shares")
-        sold = lookup(str(symbol))
+        sold = lookup(symbol)
         price = sold["price"]
         cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
         cashValue = float(cash[0]["cash"])
 
         valueOfShares = int(numOfShares) * price
-        balance = cahValue + costOfShares
+        balance = cashValue + valueOfShares
 
         if valueOfShares <= 0:
             return apology("Your shares are worthless!")
         else:
-            sale = db.execute("INSERT INTO sale (user_id, symbol, share_price, num_shares, total_value, timestamp", session["user_id"], symbol, price, numOfShares, valueOfShares, currentTime)
+            #sale = db.execute("INSERT INTO sale (user_id, symbol, share_price, num_shares, total_value, timestamp", session["user_id"], symbol, price, numOfShares, valueOfShares, currentTime)
 
-            newBalance = db.execute("UPDATE users SET cash = ? WHERE id = ?", balance, session["uer_id"])
-            return render_template("sold.html", symbol=symbol, balance=bal, valueOfShares=valOfShares, price=price)
-    return render_template("sell.html", stock = stocks)
+            #newBalance = db.execute("UPDATE users SET cash = ? WHERE id = ?", balance, session["uer_id"])
+            return render_template("sold.html", symbol=symbol, balance=balance, valueOfShares=valueOfShares, price=price)
+    return render_template("sell.html", stocks = stocks)
 
 
 def errorhandler(e):

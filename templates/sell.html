@@ -8,9 +8,9 @@
     <form action="/sell" method="post">
         <div class="form-group">
             <label for="symbol">Stock</label>
-            <select class="form-control" id="symbol">
+            <select class="form-control" name="symbol">
                 <option disabled selected value="">Stock</option>
-                {%for stock in stock%}
+                {%for stock in stocks%}
                     <option value="{{ stock.symbol }}">{{ stock.symbol }}</option>
                 {%endfor%}
             </select>
