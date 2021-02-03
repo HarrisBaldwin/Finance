@@ -51,8 +51,8 @@ if not os.environ.get("API_KEY"):
 @login_required
 def index():
     """Show portfolio of stocks"""
-    data = db.execute("SELECT symbol, share_price, num_of_shares FROM purchase WHERE user_id = ?", session["user_id"])
-    groups = db.execute("SELECT symbol, SUM(num_of_shares) AS sum FROM purchase WHERE user_id = ? GROUP BY symbol",session["user_id"])
+    data = db.execute("SELECT symbol, share_price, num_of_shares FROM transactions WHERE user_id = ?", session["user_id"])
+    groups = db.execute("SELECT symbol, SUM(num_of_shares) AS sum FROM transactions WHERE user_id = ? GROUP BY symbol",session["user_id"])
     cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
     cashvalue = float(cash[0]["cash"])
     return render_template("index.html", data = data, groups = groups, cash = cashvalue)
@@ -72,11 +72,12 @@ def buy():
         #calculates cost of shares and subtracts from user's balance
         cost = int(numofshares) * price
         bal = float(cashvalue) - cost
+        transType = "BUY"
         #checks if user balance befor purchasing
         if cashvalue < cost:
             return apology("Your balance is to low.")
         else:
-            purchase = db.execute("INSERT INTO purchase (user_id, symbol, share_price, num_of_shares, total_cost, timestamp) VALUES(?,?,?,?,?,?)",session["user_id"], symbol, price, numofshares, cost, current_time)
+            purchase = db.execute("INSERT INTO transactions (user_id, symbol, share_price, num_of_shares, total_cost, timestamp, trans_type) VALUES(?,?,?,?,?,?,?)",session["user_id"], symbol, price, numofshares, cost, current_time, transType)
             new_bal = db.execute("UPDATE users SET cash = ? WHERE id = ?", bal, session["user_id"])
             return render_template("bought.html",bal = bal, cost = cost, bought = bought, numofshares=numofshares, cash=cashvalue)
     return render_template("buy.html")
@@ -165,7 +166,7 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    stocks = db.execute("SELECT symbol FROM purchase WHERE user_id = ? GROUP BY symbol",session["user_id"])
+    stocks = db.execute("SELECT symbol FROM transactions WHERE user_id = ? GROUP BY symbol",session["user_id"])
     if request.method == "POST":
         currentTime = datetime.datetime.now()
         symbol = request.form.get("symbol")
@@ -177,14 +178,17 @@ def sell():
 
         valueOfShares = int(numOfShares) * price
         balance = cashValue + valueOfShares
+        total_cost = valueOfShares * -1
+        negNumOfShares = int(numOfShares) * -1
+        transType = "SELL"
 
         if valueOfShares <= 0:
             return apology("Your shares are worthless!")
         else:
-            #sale = db.execute("INSERT INTO sale (user_id, symbol, share_price, num_shares, total_value, timestamp", session["user_id"], symbol, price, numOfShares, valueOfShares, currentTime)
+            sales = db.execute("INSERT INTO transactions (user_id, symbol, share_price, num_of_shares, total_cost, timestamp, trans_type) VALUES(?, ?, ?, ?, ?, ?,?)", session["user_id"], symbol, price, negNumOfShares, total_cost, currentTime, transType)
 
-            #newBalance = db.execute("UPDATE users SET cash = ? WHERE id = ?", balance, session["uer_id"])
-            return render_template("sold.html", symbol=symbol, balance=balance, valueOfShares=valueOfShares, price=price)
+            newBalance = db.execute("UPDATE users SET cash = ? WHERE id = ?", balance, session["user_id"])
+            return render_template("sold.html", symbol=symbol, balance=balance, valueOfShares=valueOfShares, numOfShares=numOfShares)
     return render_template("sell.html", stocks = stocks)
 
 
