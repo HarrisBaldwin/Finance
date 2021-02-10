@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+{% block main %}
+
+
+
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Stock Symbol</th>
+      <th scope="col">Company name</th>
+      <th scope="col">Share QTY</th>
+      <th scope="col">Trans Type</th>
+      <th scope="col">Current Price</th>
+      <th scope="col">Current Value</th>
+      <th scope="col">Date/Time</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for d in groups %}
+  {% set stock = lookup(d.symbol) %}
+    <tr>
+      <th scope="row">{{loop.index}}</th>
+      <td>{{d.symbol}}</td>
+      <td>{{stock.name}}</td>
+      <td>{{d.numOfShares}}</td>
+      <td>{{d.trans_type}}</td>
+      <td>{{"$%.2f" | format(d.share_price)}}</td>
+      <td>{{"$%.2f" | format(d.total_cost)}}</td>
+      <td>{{d.timestamp}}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td>Current Balance:</td>
+      <td>{{"$%.2f" | format(cash)}}</td>
+    </tr>
+    <tr>
+      <td>Grand Total:</td>
+      <td>$$$</td>
+    </tr>
+  </tbody>
+</table>
+
+{% endblock %}
